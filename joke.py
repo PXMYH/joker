@@ -14,9 +14,9 @@ URL = {
 url = URL['chn']
 TYPE = 'CHN'
 TIME = datetime.date(datetime.now())
-
 PARAMS = {'time': TIME, 'page': '1', 'maxResult': '1', 'showapi_sign': 'bd0592992b4d4050bfc927fe7a4db9f3',
           'appkey': os.environ['API_KEY']}
+TPOIC_ARN = 'arn:aws:sns:us-east-1:683778474338:joke'
 
 
 class Joke:
@@ -67,7 +67,9 @@ client = boto3.client(
 )
 
 # Send your sms message.
-client.publish(
-    PhoneNumber=os.environ['PHONE_NUMBER'],
-    Message=f"{joke}"
-)
+# client.publish(
+#     PhoneNumber=os.environ['PHONE_NUMBER'],
+#     Message=f"{joke}"
+# )
+
+client.publish(TopicArn=TPOIC_ARN, Message=f"{joke}")
