@@ -1,6 +1,9 @@
-import requests
 import logging
 import os
+from datetime import datetime
+
+import boto3
+import requests
 
 URL = {
     'jod': 'https://api.jokes.one/jod',
@@ -10,7 +13,9 @@ URL = {
 # FIXME: refactor how joke decoder factory works
 url = URL['chn']
 TYPE = 'CHN'
-PARAMS = {'time': '2020-07-18', 'page': '1', 'maxResult': '1', 'showapi_sign': 'bd0592992b4d4050bfc927fe7a4db9f3',
+TIME = datetime.date(datetime.now())
+
+PARAMS = {'time': TIME, 'page': '1', 'maxResult': '1', 'showapi_sign': 'bd0592992b4d4050bfc927fe7a4db9f3',
           'appkey': os.environ['API_KEY']}
 
 
@@ -48,5 +53,21 @@ class Joke:
 
 logger = logging.getLogger('Joker')
 title, content = Joke(url, params=PARAMS).get_joke()
-logger.info(f'{title}\n{content}')
-print(f'{title}\n{content}')
+joke = f'{title}\n{content}'
+logger.info(f'{joke}')
+print(f'{joke}')
+
+
+# Create an SNS client
+client = boto3.client(
+    "sns",
+    aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+    aws_secret_access_key=os.environ['AWS_ACCESS_SECRET'],
+    region_name=os.environ['AWS_REGION']
+)
+
+# Send your sms message.
+client.publish(
+    PhoneNumber=os.environ['PHONE_NUMBER'],
+    Message=f"{joke}"
+)
