@@ -11,8 +11,8 @@ URL = {
     'jdwx': 'https://way.jd.com/showapi/wbxh'
 }
 # FIXME: refactor how joke decoder factory works
-url = URL['chn']
-TYPE = 'CHN'
+url = URL['jdwx']
+TYPE = 'JD' # Valid value: JD, JOD, CHN
 TIME = datetime.date(datetime.now())
 PARAMS = {'time': TIME, 'page': '1', 'maxResult': '1', 'showapi_sign': 'bd0592992b4d4050bfc927fe7a4db9f3',
           'appkey': os.environ['JD_API_KEY']}
@@ -33,15 +33,14 @@ class Joke:
         title, content = None, None
 
         if type == 'CHN':
-            title, content = response[0]['title'], response[0]['content'].lstrip().rstrip().replace('<br/>',
-                                                                                                              '')
+            title, content = response[0]['title'], response[0]['content'].lstrip().rstrip().replace('<br/>', '')
         if type == 'JOD':
             joke = response['contents']['jokes'][0]['joke']
             title, content = joke['title'], joke['text']
 
         if type == 'JD':
             joke = response['result']['showapi_res_body']['contentlist'][0]
-            title, content = joke['title'], joke['text']
+            title, content = joke['title'], joke['text'].replace('\t', '')
 
         return title, content
 
